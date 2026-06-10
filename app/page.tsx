@@ -19,7 +19,7 @@ const CACHE_TTL = 45000; // 45s — Finnhub free tier: 60 req/min
 
 // Safe AI wrapper — in production, replace URL with "/api/ai" (Next.js API route)
 // that holds ANTHROPIC_API_KEY in process.env, never shipped to the browser.
-const callAI = async (messages: any[], max_tokens: number = 1000): Promise<string> => {
+const callAI = async (messages: any[], max_tokens: number = 1000) => {
   // ✅ Calls /api/ai — Anthropic key stays server-side, never exposed to browser
   const res = await fetch("/api/ai", {
     method: "POST",
