@@ -1775,4 +1775,185 @@ export default function App() {
     <div style={{background:"#07090D",minHeight:"100vh",fontFamily:"-apple-system,BlinkMacSystemFont,'Inter',sans-serif",color:"#F0F4FF",display:"flex",flexDirection:"column"}}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
-     
+        html{scroll-behavior:smooth}
+        ::-webkit-scrollbar{width:4px;height:4px}
+        ::-webkit-scrollbar-track{background:#07090D}
+        ::-webkit-scrollbar-thumb{background:#1C2333;border-radius:2px}
+        input,select,textarea{outline:none;font-family:inherit}
+        input:focus,select:focus,textarea:focus{border-color:#3B82F6!important}
+        input::placeholder,textarea::placeholder{color:#3D4A5C}
+        button{cursor:pointer;font-family:inherit}
+        button:focus-visible{outline:2px solid #3B82F6;outline-offset:2px}
+        a:focus-visible{outline:2px solid #3B82F6;outline-offset:2px}
+        table{border-collapse:collapse;width:100%}
+        img{max-width:100%;height:auto}
+        /* Responsive table wrapper */
+        .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+        /* Touch targets min 44px */
+        button,a,[role=button]{min-height:36px}
+        /* Prevent horizontal overflow */
+        body{overflow-x:hidden}
+        @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        /* Mobile bottom nav safe area */
+        @supports(padding-bottom:env(safe-area-inset-bottom)){
+          .bottom-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+        }
+        /* Reduce motion */
+        @media(prefers-reduced-motion:reduce){
+          *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+        }
+        /* High contrast focus for accessibility */
+        @media(forced-colors:active){
+          button:focus,a:focus{outline:2px solid ButtonText}
+        }
+      `}</style>
+
+      {/* -- TOP NAV -- */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+        padding:isMobile?"10px 14px":"11px 24px",borderBottom:"1px solid #1C2333",
+        background:"#07090D",position:"sticky",top:0,zIndex:50,flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:26,height:26,background:"linear-gradient(135deg,#00C896,#3B82F6)",
+            borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",
+            fontSize:12,fontWeight:800,color:"#07090D",flexShrink:0}}>O</div>
+          <span style={{fontWeight:800,fontSize:isMobile?14:15,letterSpacing:"-0.03em"}}>OpenBell</span>
+          {!isMobile&&(
+            <>
+              <div style={{width:1,height:16,background:"#1C2333"}}/>
+              <nav style={{display:"flex",gap:2}}>
+                {nav.map(n=>{
+                  const isNews = n.id==="news";
+                  const isTools = n.id==="tools";
+                  const holdingSyms = holdings.map(h=>h.sym);
+                  const newsAlerts = isNews ? SEED_NEWS.filter(a=>a.tickers.some(t=>holdingSyms.includes(t))&&a.impact==="high").length : 0;
+                  if(isTools) return (
+                    <a key={n.id} href="/tools"
+                      style={{padding:"5px 11px",borderRadius:6,border:"none",cursor:"pointer",
+                        fontSize:12,fontWeight:400,color:"#8892A4",textDecoration:"none",
+                        background:"transparent",transition:"all 0.15s",
+                        display:"flex",alignItems:"center",gap:5,minHeight:36}}>
+                      Fee Calc
+                    </a>
+                  );
+                  return (
+                    <button key={n.id} onClick={()=>setTab(n.id)}
+                      style={{padding:"5px 11px",borderRadius:6,border:"none",cursor:"pointer",
+                        fontSize:12,fontWeight:tab===n.id?600:400,
+                        color:tab===n.id?"#F0F4FF":"#8892A4",
+                        background:tab===n.id?"#1C2333":"transparent",transition:"all 0.15s",
+                        position:"relative",display:"flex",alignItems:"center",gap:5}}>
+                      {n.label}
+                      {newsAlerts>0&&n.id==="news"&&(
+                        <span style={{background:"#E5484D",color:"#fff",borderRadius:10,
+                          fontSize:9,padding:"0 5px",fontWeight:700,lineHeight:"14px"}}>
+                          {newsAlerts}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </>
+          )}
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <button onClick={refreshQuotes} disabled={fetching} aria-label="Refresh market data"
+            style={{background:"#141820",border:"1px solid #1C2333",color:fetching?"#3D4A5C":"#8892A4",
+              borderRadius:6,padding:"5px 10px",cursor:fetching?"not-allowed":"pointer",
+              fontSize:11,display:"flex",alignItems:"center",gap:5}}>
+            <span style={{display:"inline-block",animation:fetching?"spin 1s linear infinite":"none",fontSize:13}}>?</span>
+            {!isMobile&&(fetching?"...":"Refresh")}
+          </button>
+          <div style={{display:"flex",alignItems:"center",gap:4}}>
+            <div style={{width:5,height:5,borderRadius:"50%",background:mktOpen?"#00C896":"#3D4A5C",
+              boxShadow:mktOpen?"0 0 5px #00C896":"none",flexShrink:0}}/>
+            <span style={{fontSize:isMobile?9:10,color:mktOpen?"#00C896":"#3D4A5C",letterSpacing:"0.05em"}}>
+              {mktOpen?"OPEN":"CLOSED"}
+            </span>
+          </div>
+          {!isMobile&&<span style={{fontSize:10,color:"#3D4A5C",fontFamily:"monospace"}}>{time.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"})} ET</span>}
+          {isMobile&&(
+            <button onClick={()=>setMobileMenuOpen(o=>!o)} aria-label="Open navigation menu" aria-expanded={mobileMenuOpen}
+              style={{background:"#141820",border:"1px solid #1C2333",color:"#8892A4",
+                borderRadius:6,padding:"5px 8px",cursor:"pointer",fontSize:16}}>?</button>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile nav drawer */}
+      {isMobile&&mobileMenuOpen&&(
+        <div style={{background:"#0E1117",borderBottom:"1px solid #1C2333",padding:"8px 14px",
+          display:"flex",gap:4,flexWrap:"wrap",zIndex:40}}>
+          {nav.map(n=>(
+            <button key={n.id} onClick={()=>{setTab(n.id);setMobileMenuOpen(false);}}
+              style={{padding:"7px 14px",borderRadius:7,border:"none",cursor:"pointer",fontSize:13,
+                fontWeight:tab===n.id?600:400,color:tab===n.id?"#F0F4FF":"#8892A4",
+                background:tab===n.id?"#1C2333":"transparent"}}>
+              {n.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Market bar - scrollable, hidden on narrow mobile */}
+      <div style={{display:"flex",overflowX:"auto",borderBottom:"1px solid #1C2333",
+        background:"#07090D",padding:isMobile?"5px 14px":"6px 24px",flexShrink:0,
+        scrollbarWidth:"none"}}>
+        {MARKET_BAR.map((m,i)=>(
+          <div key={i} style={{display:"flex",alignItems:"center",gap:5,paddingRight:14,marginRight:14,
+            flexShrink:0,whiteSpace:"nowrap",borderRight:i<MARKET_BAR.length-1?"1px solid #1C2333":"none"}}>
+            <span style={{fontSize:9,color:"#3D4A5C",letterSpacing:"0.07em"}}>{m.l}</span>
+            <span style={{fontSize:isMobile?10:11,color:"#F0F4FF",fontFamily:"monospace",fontWeight:600}}>{m.v}</span>
+            <span style={{fontSize:10,fontFamily:"monospace",color:m.n?"#8892A4":m.up?"#00C896":"#E5484D"}}>{m.p}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Page content */}
+      <div style={{flex:1,overflowY:"auto"}}>
+        {tab==="dashboard"&&<Dashboard holdings={holdings} watchlist={watchlist} quotes={quotes} lastUpdate={lastUpdate}/>}
+        {tab==="holdings" &&<HoldingsManager holdings={holdings} setHoldings={setHoldings} quotes={quotes} showToast={showToast}/>}
+        {tab==="watchlist"&&<WatchlistManager watchlist={watchlist} setWatchlist={setWatchlist} quotes={quotes} showToast={showToast}/>}
+        {tab==="news"     &&<NewsIntelligence holdings={holdings} watchlist={watchlist}/>}
+        {tab==="growth"   &&<GrowthEngine holdings={holdings} quotes={quotes}/>}
+      </div>
+
+      {/* Bottom nav for mobile */}
+      {isMobile&&(
+        <div className="bottom-nav" style={{display:"flex",borderTop:"1px solid #1C2333",background:"#07090D",flexShrink:0,
+          position:"sticky",bottom:0,zIndex:50}}>
+          {nav.map(n=>{
+            if(n.id==="tools") return (
+              <a key={n.id} href="/tools"
+                style={{flex:1,padding:"10px 4px",textDecoration:"none",
+                  color:"#3D4A5C",background:"transparent",
+                  display:"flex",flexDirection:"column",alignItems:"center",gap:2,minHeight:44}}>
+                <span style={{fontSize:14}}>$</span>
+                <span style={{fontSize:9,letterSpacing:"0.04em"}}>Calc</span>
+              </a>
+            );
+            return (
+              <button key={n.id} onClick={()=>{setTab(n.id);setMobileMenuOpen(false);}}
+                style={{flex:1,padding:"10px 4px",border:"none",cursor:"pointer",
+                  color:tab===n.id?"#00C896":"#3D4A5C",background:"transparent",
+                  display:"flex",flexDirection:"column",alignItems:"center",gap:2,minHeight:44}}>
+                <span style={{fontSize:14}}>{n.icon}</span>
+                <span style={{fontSize:9,letterSpacing:"0.04em",fontWeight:tab===n.id?600:400}}>{n.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div style={{borderTop:"1px solid #1C2333",padding:"8px 24px",display:"flex",justifyContent:"space-between",
+        fontSize:10,color:"#3D4A5C",flexShrink:0}}>
+        <span>OpenBell Portfolio . Not financial advice . Data: Finnhub / Yahoo Finance (may be delayed)</span>
+        <span>{lastUpdate?"Updated "+new Date(lastUpdate).toLocaleTimeString():"Initializing..."}</span>
+      </div>
+      <Toast toast={toast}/>
+    </div>
+  );
+}
