@@ -1052,7 +1052,7 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
   return (
     <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1400,margin:"0 auto"}}>
       {/* KPI strip - 2 rows on mobile, 1 on desktop */}
-      <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(auto-fill,minmax(min(160px,100%),1fr))",gap:8,marginBottom:16}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
         {kpis.map(({l,v,c})=>(
           <div key={l} style={{background:"#0E1117",border:"1px solid #1C2333",borderRadius:10,padding:"11px 12px"}}>
             <div style={{fontSize:9,color:"#3D4A5C",letterSpacing:"0.1em",marginBottom:4}}>{l.toUpperCase()}</div>
@@ -1061,7 +1061,7 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
         ))}
       </div>
 
-      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr clamp(260px,28%,320px)",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 300px",gap:14}}>
         <div>
           {/* Holdings table */}
           <div style={{background:"#0E1117",border:"1px solid #1C2333",borderRadius:12,overflow:"hidden",marginBottom:14}}>
@@ -1073,9 +1073,10 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
               <table style={{borderCollapse:"collapse",width:"100%",minWidth:isMobile?280:480}}>
                 <thead>
                   <tr style={{background:"#141820"}}>
-                    {(isMobile?["Symbol","Price","Return"]:["Symbol","Price","Value","Today","Return","Weight"]).map((h,i)=>(
-                      <th key={h} style={{padding:"8px "+(i===0?"16px":"8px"),textAlign:i===0?"left":"right",
-                        fontSize:10,color:"#3D4A5C",letterSpacing:"0.08em",fontWeight:600}}>{h}</th>
+                    {(isMobile?["Symbol","Price","Ret%"]:["Symbol","Price","Value","Today","Return","Weight"]).map((h,i)=>(
+                      <th key={h} style={{padding:isMobile?"7px "+(i===0?"10px":"6px"):"8px "+(i===0?"16px":"8px"),
+                        textAlign:i===0?"left":"right",fontSize:9,color:"#3D4A5C",
+                        letterSpacing:"0.06em",fontWeight:600,whiteSpace:"nowrap"}}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -1084,19 +1085,19 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
                     <tr key={h.id} style={{borderTop:"1px solid #1C2333"}}
                       onMouseEnter={e=>e.currentTarget.style.background="#141820"}
                       onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                      <td style={{padding:"9px 16px"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:7}}>
-                          <div style={{width:22,height:22,borderRadius:5,background:(SECTOR_C[h.sector]||"#888")+"22",
+                      <td style={{padding:isMobile?"8px 10px":"9px 16px"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <div style={{width:20,height:20,borderRadius:4,background:(SECTOR_C[h.sector]||"#888")+"22",
                             display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                             <span style={{fontSize:7,fontWeight:800,color:SECTOR_C[h.sector]||"#888",fontFamily:"monospace"}}>{h.sym.slice(0,2)}</span>
                           </div>
-                          <span style={{fontSize:12,fontWeight:700,color:"#F0F4FF",fontFamily:"monospace"}}>{h.sym}</span>
+                          <span style={{fontSize:isMobile?11:12,fontWeight:700,color:"#F0F4FF",fontFamily:"monospace"}}>{h.sym}</span>
                         </div>
                       </td>
-                      <td style={{padding:"9px 8px",textAlign:"right",fontSize:12,fontFamily:"monospace",color:"#F0F4FF"}}>${fmt(h.price)}</td>
+                      <td style={{padding:isMobile?"8px 6px":"9px 8px",textAlign:"right",fontSize:isMobile?11:12,fontFamily:"monospace",color:"#F0F4FF"}}>${fmt(h.price)}</td>
                       {!isMobile&&<td style={{padding:"9px 8px",textAlign:"right",fontSize:12,fontFamily:"monospace",color:"#8892A4"}}>${fmt(h.mktVal)}</td>}
                       {!isMobile&&<td style={{padding:"9px 8px",textAlign:"right"}}><Pct v={h.dayPct}/></td>}
-                      <td style={{padding:"9px 8px",textAlign:"right"}}><Pct v={h.totalRet}/></td>
+                      <td style={{padding:isMobile?"8px 6px":"9px 8px",textAlign:"right"}}><Pct v={h.totalRet} size={isMobile?10:11}/></td>
                       {!isMobile&&<td style={{padding:"9px 8px",textAlign:"right",fontSize:11,fontFamily:"monospace",color:"#8892A4"}}>{fmt(h.weight,1)}%</td>}
                     </tr>
                   ))}
@@ -1860,20 +1861,20 @@ export default function App() {
           )}
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <button onClick={refreshQuotes} disabled={fetching} aria-label="Refresh market data"
+          {!isMobile&&<button onClick={refreshQuotes} disabled={fetching} aria-label="Refresh market data"
             style={{background:"#141820",border:"1px solid #1C2333",color:fetching?"#3D4A5C":"#8892A4",
               borderRadius:6,padding:"5px 10px",cursor:fetching?"not-allowed":"pointer",
               fontSize:11,display:"flex",alignItems:"center",gap:5}}>
             <span style={{display:"inline-block",animation:fetching?"spin 1s linear infinite":"none",fontSize:13}}>?</span>
-            {!isMobile&&(fetching?"...":"Refresh")}
-          </button>
-          <div style={{display:"flex",alignItems:"center",gap:4}}>
+            {fetching?"...":"Refresh"}
+          </button>}
+          {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:4}}>
             <div style={{width:5,height:5,borderRadius:"50%",background:mktOpen?"#00C896":"#3D4A5C",
               boxShadow:mktOpen?"0 0 5px #00C896":"none",flexShrink:0}}/>
-            <span style={{fontSize:isMobile?9:10,color:mktOpen?"#00C896":"#3D4A5C",letterSpacing:"0.05em"}}>
+            <span style={{fontSize:10,color:mktOpen?"#00C896":"#3D4A5C",letterSpacing:"0.05em"}}>
               {mktOpen?"OPEN":"CLOSED"}
             </span>
-          </div>
+          </div>}
           {!isMobile&&<span style={{fontSize:10,color:"#3D4A5C",fontFamily:"monospace"}}>{time.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"})} ET</span>}
           {isMobile&&(
             <button onClick={()=>setMobileMenuOpen(o=>!o)} aria-label="Open navigation menu" aria-expanded={mobileMenuOpen}
@@ -1901,12 +1902,12 @@ export default function App() {
       {/* Market bar - scrollable, hidden on narrow mobile */}
       <div style={{display:"flex",overflowX:"auto",borderBottom:"1px solid #1C2333",
         background:"#07090D",padding:isMobile?"5px 14px":"6px 24px",flexShrink:0,
-        scrollbarWidth:"none"}}>
+        scrollbarWidth:"none",WebkitOverflowScrolling:"touch"}}>
         {MARKET_BAR.map((m,i)=>(
           <div key={i} style={{display:"flex",alignItems:"center",gap:5,paddingRight:14,marginRight:14,
             flexShrink:0,whiteSpace:"nowrap",borderRight:i<MARKET_BAR.length-1?"1px solid #1C2333":"none"}}>
             <span style={{fontSize:9,color:"#3D4A5C",letterSpacing:"0.07em"}}>{m.l}</span>
-            <span style={{fontSize:isMobile?10:11,color:"#F0F4FF",fontFamily:"monospace",fontWeight:600}}>{m.v}</span>
+            <span style={{fontSize:10,color:"#F0F4FF",fontFamily:"monospace",fontWeight:600}}>{m.v}</span>
             <span style={{fontSize:10,fontFamily:"monospace",color:m.n?"#8892A4":m.up?"#00C896":"#E5484D"}}>{m.p}</span>
           </div>
         ))}
