@@ -1,26 +1,26 @@
 "use client";
-// OpenBell Portfolio — app/page.tsx
+// OpenBell Portfolio - app/page.tsx
 // This is the main application page served by Next.js
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // DESIGN TOKENS
 // BG #07090D | Surface #0E1117 | Surface2 #141820 | Border #1C2333
 // Teal #00C896 | Red #E5484D | Amber #F59E0B | Blue #3B82F6
 // Text #F0F4FF | Sub #8892A4 | Muted #3D4A5C
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 
-// ── DATA LAYER ───────────────────────────────────────────────────────
-// FIX: Multi-source fetch — Finnhub (free tier) → Yahoo fallback → mock
-// FIX: callAI() centralises all Anthropic calls — swap body for /api/ai in Next.js
+// -- DATA LAYER ------------------------------------------------------_
+// FIX: Multi-source fetch - Finnhub (free tier) -> Yahoo fallback -> mock
+// FIX: callAI() centralises all Anthropic calls - swap body for /api/ai in Next.js
 const CACHE: Record<string, { data: any; ts: number }> = {};
-const CACHE_TTL = 45000; // 45s — Finnhub free tier: 60 req/min
+const CACHE_TTL = 45000; // 45s - Finnhub free tier: 60 req/min
 
-// Safe AI wrapper — in production, replace URL with "/api/ai" (Next.js API route)
+// Safe AI wrapper - in production, replace URL with "/api/ai" (Next.js API route)
 // that holds ANTHROPIC_API_KEY in process.env, never shipped to the browser.
 const callAI = async (messages, max_tokens = 1000) => {
-  // ✅ Calls /api/ai — Anthropic key stays server-side, never exposed to browser
+  //  Calls /api/ai - Anthropic key stays server-side, never exposed to browser
   const res = await fetch("/api/ai", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ const fetchQuote = async (symbol) => {
   const now = Date.now();
   if (CACHE[symbol] && now - CACHE[symbol].ts < CACHE_TTL) return CACHE[symbol].data;
 
-  // ✅ Calls /api/quotes — server-side proxy handles Finnhub + Yahoo fallback
+  //  Calls /api/quotes - server-side proxy handles Finnhub + Yahoo fallback
   // No CORS issues, no API keys exposed in browser
   try {
     const res = await fetch(`/api/quotes?symbol=${symbol}`, {
@@ -106,7 +106,7 @@ const getMockQuote = (sym) => {
   return {...b, symbol:sym, price:+(b.price+d).toFixed(2), live:false, ts:Date.now()};
 };
 
-// ── TICKER DIRECTORY (for autocomplete) ─────────────────────────────
+// -- TICKER DIRECTORY (for autocomplete) ----------------------------_
 const TICKER_DB = [
   {sym:"AAPL",  name:"Apple Inc",              sector:"Technology",     mktcap:"3.27T"},
   {sym:"MSFT",  name:"Microsoft Corp",          sector:"Technology",     mktcap:"3.18T"},
@@ -142,15 +142,15 @@ const TICKER_DB = [
   {sym:"PEP",   name:"PepsiCo Inc",             sector:"Consumer",       mktcap:"198B"},
   {sym:"MCD",   name:"McDonald's Corp",         sector:"Consumer",       mktcap:"212B"},
   {sym:"O",     name:"Realty Income Corp (REIT)",sector:"Finance",       mktcap:"32B"},
-  {sym:"SPY",   name:"SPDR S&P 500 ETF",        sector:"ETF",            mktcap:"—"},
-  {sym:"QQQ",   name:"Invesco QQQ ETF (NASDAQ)",sector:"ETF",            mktcap:"—"},
-  {sym:"GLD",   name:"SPDR Gold Shares ETF",    sector:"Commodity",      mktcap:"—"},
-  {sym:"VTI",   name:"Vanguard Total Stock ETF",sector:"ETF",            mktcap:"—"},
-  {sym:"BTC-USD",name:"Bitcoin USD",            sector:"Crypto",         mktcap:"—"},
+  {sym:"SPY",   name:"SPDR S&P 500 ETF",        sector:"ETF",            mktcap:"-"},
+  {sym:"QQQ",   name:"Invesco QQQ ETF (NASDAQ)",sector:"ETF",            mktcap:"-"},
+  {sym:"GLD",   name:"SPDR Gold Shares ETF",    sector:"Commodity",      mktcap:"-"},
+  {sym:"VTI",   name:"Vanguard Total Stock ETF",sector:"ETF",            mktcap:"-"},
+  {sym:"BTC-USD",name:"Bitcoin USD",            sector:"Crypto",         mktcap:"-"},
   {sym:"COIN",  name:"Coinbase Global",         sector:"Finance",        mktcap:"62B"},
 ];
 
-// ── MARKET CAP HISTORY ───────────────────────────────────────────────
+// -- MARKET CAP HISTORY ----------------------------------------------_
 const MKTCAP_HISTORY = {
   NVDA: {"2022-01-01":0.62e12,"2023-01-01":0.36e12,"2023-06-01":0.98e12,"2024-01-01":1.22e12,"2024-06-01":2.8e12,current:5.04e12},
   AAPL: {"2022-01-01":2.91e12,"2023-01-01":2.07e12,"2024-01-01":2.99e12,"2024-06-01":3.01e12,current:3.27e12},
@@ -170,10 +170,10 @@ const getHistoricalMktCap = (symbol, purchaseDate) => {
   return hist[best] || null;
 };
 
-// ── UTILS ────────────────────────────────────────────────────────────
+// -- UTILS ------------------------------------------------------------
 const fmt  = (n,d=2) => (+n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
 const fmtB = (n) => !n?"N/A":n>=1e12?"$"+(n/1e12).toFixed(2)+"T":n>=1e9?"$"+(n/1e9).toFixed(1)+"B":"$"+(n/1e6).toFixed(0)+"M";
-const fmtV = (n) => !n?"—":n>=1e9?(n/1e9).toFixed(2)+"B":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(0)+"K":n;
+const fmtV = (n) => !n?"-":n>=1e9?(n/1e9).toFixed(2)+"B":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(0)+"K":n;
 const pctC = (v) => v>=0?"#00C896":"#E5484D";
 const pctBg= (v) => v>=0?"#00C89612":"#E5484D12";
 const pctBd= (v) => v>=0?"#00C89630":"#E5484D30";
@@ -206,10 +206,10 @@ const DEFAULT_WATCHLIST = [
   {id:uid(),sym:"NFLX", group:"Streaming"},
 ];
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // TICKER AUTOCOMPLETE COMPONENT
-// ══════════════════════════════════════════════════════════════════════
-const TickerAutocomplete = ({ value, onChange, onSelect, placeholder = "Search ticker or company…" }) => {
+// ======================================================================
+const TickerAutocomplete = ({ value, onChange, onSelect, placeholder = "Search ticker or company?" }) => {
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -300,9 +300,9 @@ const TickerAutocomplete = ({ value, onChange, onSelect, placeholder = "Search t
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // MICRO UI COMPONENTS
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const genSpark = (base, up) => {
   let v = base*(1-(up?0.014:0.011));
   return Array.from({length:20},(_,i)=>{ v+=(Math.random()-(up?0.41:0.59))*base*0.003; return i===19?base:v; });
@@ -374,7 +374,7 @@ const Modal = ({title,onClose,children}) => (
         background:"#0E1117",zIndex:10}}>
         <span style={{fontSize:14,fontWeight:700,color:"#F0F4FF"}}>{title}</span>
         <button onClick={onClose} style={{background:"none",border:"none",color:"#8892A4",
-          cursor:"pointer",fontSize:22,lineHeight:1,padding:"0 4px"}}>×</button>
+          cursor:"pointer",fontSize:22,lineHeight:1,padding:"0 4px"}}>x</button>
       </div>
       <div style={{padding:"20px"}}>{children}</div>
     </div>
@@ -388,9 +388,9 @@ const SecLabel = ({children,right}) => (
   </div>
 );
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // MARKET CAP GROWTH CARD
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const MktCapGrowthCard = ({holding,quote}) => {
   const firstLot = [...holding.lots].sort((a,b)=>a.date.localeCompare(b.date))[0];
   const purchaseMktCap = getHistoricalMktCap(holding.sym,firstLot.date);
@@ -423,7 +423,7 @@ const MktCapGrowthCard = ({holding,quote}) => {
           </div>
           <div>
             <div style={{fontSize:15,fontWeight:800,color:"#F0F4FF",fontFamily:"monospace"}}>{holding.sym}</div>
-            <div style={{fontSize:10,color:"#8892A4"}}>{totalShares} sh · avg ${fmt(avgCost)}</div>
+            <div style={{fontSize:10,color:"#8892A4"}}>{totalShares} sh . avg ${fmt(avgCost)}</div>
           </div>
         </div>
         <div style={{textAlign:"right"}}>
@@ -453,7 +453,7 @@ const MktCapGrowthCard = ({holding,quote}) => {
                 <div style={{fontSize:9,color:"#3D4A5C",marginTop:1}}>{firstLot.date}</div>
               </div>
               <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"0 8px",flexShrink:0}}>
-                <div style={{fontSize:16,color:pctC(mktCapGrowth)}}>→</div>
+                <div style={{fontSize:16,color:pctC(mktCapGrowth)}}>-></div>
                 <div style={{fontSize:11,fontWeight:700,color:pctC(mktCapGrowth)}}>{mktCapGrowth>=0?"+":""}{fmt(mktCapGrowth)}%</div>
                 {multiple&&<div style={{fontSize:10,color:"#8892A4"}}>{multiple.toFixed(1)}x</div>}
               </div>
@@ -508,9 +508,9 @@ const MktCapGrowthCard = ({holding,quote}) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // HOLDINGS MANAGER
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
   const [modal,setModal]         = useState<any>(null);
   const [editTarget,setEditTarget] = useState<any>(null);
@@ -527,7 +527,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
   const openLot = (h) => { setEditTarget(h); setLotForm({shares:"",avgCost:"",date:new Date().toISOString().slice(0,10)}); setModal("lot"); };
 
   const handleTickerSelect = (t) => {
-    setSymInput(t.sym+" — "+t.name);
+    setSymInput(t.sym+" - "+t.name);
     setForm(f=>({...f,sym:t.sym,sector:t.sector}));
   };
 
@@ -577,7 +577,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:16,flexWrap:"wrap",gap:10}}>
         <div>
           <div style={{fontSize:isMobile?16:20,fontWeight:800,color:"#F0F4FF",letterSpacing:"-0.03em"}}>Holdings</div>
-          <div style={{fontSize:12,color:"#8892A4",marginTop:2}}>{holdings.length} positions · ${fmt(totalVal)} total</div>
+          <div style={{fontSize:12,color:"#8892A4",marginTop:2}}>{holdings.length} positions . ${fmt(totalVal)} total</div>
         </div>
         <Btn variant="primary" onClick={openAdd}>+ Add Holding</Btn>
       </div>
@@ -655,7 +655,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
                         <button onClick={()=>setExpanded(expanded===h.id?null:h.id)}
                           style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",
                             fontSize:14,padding:0,transition:"transform 0.2s",
-                            transform:expanded===h.id?"rotate(90deg)":"rotate(0deg)"}}>›</button>
+                            transform:expanded===h.id?"rotate(90deg)":"rotate(0deg)"}}>?</button>
                       </td>
                       <td style={{padding:"10px 8px"}}>
                         <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -700,7 +700,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
                             }
                           }}
                             style={{background:"#E5484D14",border:"1px solid #E5484D30",color:"#E5484D",
-                              borderRadius:5,padding:"3px 8px",cursor:"pointer",fontSize:11}}>✕</button>
+                              borderRadius:5,padding:"3px 8px",cursor:"pointer",fontSize:11}}>x</button>
                         </div>
                       </td>
                     </tr>
@@ -721,7 +721,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
                                   <button onClick={()=>removeLot(h.id,lot.id)}
                                     style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:13,marginLeft:"auto",padding:"2px 5px"}}
                                     onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")}
-                                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
+                                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>x</button>
                                 </div>
                               );
                             })}
@@ -751,10 +751,10 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
                 value={symInput}
                 onChange={v=>{ setSymInput(v); setForm(f=>({...f,sym:v.split(" ")[0].toUpperCase()})); }}
                 onSelect={handleTickerSelect}
-                placeholder="e.g. NVDA or NVIDIA or Apple…"
+                placeholder="e.g. NVDA or NVIDIA or Apple?"
               />
               {form.sym&&<div style={{fontSize:11,color:"#00C896",marginTop:6,display:"flex",alignItems:"center",gap:5}}>
-                <span>✓</span> Selected: <strong style={{fontFamily:"monospace"}}>{form.sym}</strong>
+                <span>OK</span> Selected: <strong style={{fontFamily:"monospace"}}>{form.sym}</strong>
                 <span style={{fontSize:10,color:"#3D4A5C",marginLeft:4}}>{form.sector}</span>
               </div>}
             </div>
@@ -782,7 +782,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
 
       {/* ADD LOT MODAL */}
       {modal==="lot"&&editTarget&&(
-        <Modal title={`Add Lot — ${editTarget.sym}`} onClose={()=>setModal(null)}>
+        <Modal title={`Add Lot - ${editTarget.sym}`} onClose={()=>setModal(null)}>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
               <div>
@@ -809,9 +809,9 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // WATCHLIST MANAGER
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
   const [symInput,setSymInput] = useState("");
   const [addSym,setAddSym]     = useState("");
@@ -822,7 +822,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
   const isMobile = useIsMobile();
 
   const handleTickerSelect = (t) => {
-    setSymInput(t.sym+" — "+t.name);
+    setSymInput(t.sym+" - "+t.name);
     setAddSym(t.sym);
     setAddGroup(t.sector in {"Technology":1,"Finance":1,"Healthcare":1}?t.sector:"Tech Giants");
   };
@@ -875,7 +875,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
           <div style={{flex:"1 1 200px",minWidth:0}}>
             <TickerAutocomplete value={symInput}
               onChange={v=>{setSymInput(v);setAddSym(v.split(" ")[0].toUpperCase());}}
-              onSelect={handleTickerSelect} placeholder="Search and add ticker…"/>
+              onSelect={handleTickerSelect} placeholder="Search and add ticker?"/>
           </div>
           <select value={addGroup} onChange={e=>setAddGroup(e.target.value)}
             style={{background:"#141820",border:"1px solid #1C2333",color:"#8892A4",
@@ -910,7 +910,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
                   <button onClick={()=>{ if(window.confirm(`Remove ${w.sym} from watchlist?`)) remove(w.id); }}
                     style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:14,padding:"2px 4px",marginLeft:"auto"}}
                     onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")}
-                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>x</button>
                 </div>
               );
             })}
@@ -931,7 +931,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
                     <div style={{fontSize:9,color:"#3D4A5C"}}>{w.group}</div>
                   </div>
                   <button onClick={()=>remove(w.id)} style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:12,padding:"0 2px"}}
-                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")} onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")} onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>x</button>
                 </div>
                 {q?<>
                   <div style={{fontSize:16,fontWeight:700,fontFamily:"monospace",color:"#F0F4FF",marginBottom:4}}>${fmt(q.price)}</div>
@@ -956,7 +956,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
                 <span style={{fontSize:10,color:"#3D4A5C",flex:1}}>{w.group}</span>
                 {q&&<><span style={{fontSize:12,fontFamily:"monospace",color:"#F0F4FF"}}>${fmt(q.price)}</span><Pct v={q.pct} size={10}/></>}
                 <button onClick={()=>remove(w.id)} style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:12,padding:"1px 4px"}}
-                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")} onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")} onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>x</button>
               </div>
             );
           })}
@@ -966,9 +966,9 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // GROWTH ENGINE TAB
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const GrowthEngine = ({holdings,quotes}) => {
   const enriched = holdings.map(h=>{
     const q=quotes[h.sym];
@@ -989,7 +989,7 @@ const GrowthEngine = ({holdings,quotes}) => {
     <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1200,margin:"0 auto"}}>
       <div style={{marginBottom:16}}>
         <div style={{fontSize:isMobile?16:20,fontWeight:800,color:"#F0F4FF",letterSpacing:"-0.03em",marginBottom:4}}>Market Cap Growth Engine</div>
-        <div style={{fontSize:12,color:"#8892A4"}}>How each business grew since you invested — beyond P&L</div>
+        <div style={{fontSize:12,color:"#8892A4"}}>How each business grew since you invested - beyond P&L</div>
       </div>
       <div style={{background:"#0E1117",border:"1px solid #1C2333",borderRadius:12,padding:16,marginBottom:16}}>
         <SecLabel>Portfolio Return Contribution</SecLabel>
@@ -1016,9 +1016,9 @@ const GrowthEngine = ({holdings,quotes}) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // DASHBOARD
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
   const isMobile = useIsMobile();
   const enriched = holdings.map(h=>{
@@ -1045,13 +1045,13 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
     {l:"Total Return",v:(totalRet>=0?"+":"")+fmt(totalRet)+"%",c:pctC(totalRet)},
     {l:"Invested",v:"$"+fmt(totalCost),c:"#8892A4"},
     {l:"Holdings",v:holdings.length+" pos",c:"#F0F4FF"},
-    {l:"Best",v:best?.sym||"—",c:"#00C896"},
-    {l:"Watch",v:worst?.sym||"—",c:"#E5484D"},
+    {l:"Best",v:best?.sym||"-",c:"#00C896"},
+    {l:"Watch",v:worst?.sym||"-",c:"#E5484D"},
   ];
 
   return (
     <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1400,margin:"0 auto"}}>
-      {/* KPI strip — 2 rows on mobile, 1 on desktop */}
+      {/* KPI strip - 2 rows on mobile, 1 on desktop */}
       <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(7,1fr)",gap:8,marginBottom:16}}>
         {kpis.map(({l,v,c})=>(
           <div key={l} style={{background:"#0E1117",border:"1px solid #1C2333",borderRadius:10,padding:"11px 12px"}}>
@@ -1170,12 +1170,12 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
+// ======================================================================
 // NEWS INTELLIGENCE SYSTEM
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 
-// ── STATIC SEED NEWS (shown instantly, AI enriches on demand) ────────
+// -- STATIC SEED NEWS (shown instantly, AI enriches on demand) --------
 const SEED_NEWS = [
   { id:"n1", headline:"NVIDIA signs $10B AI infrastructure deal with Saudi Aramco",
     source:"Reuters", time:"18m ago", category:"Technology",
@@ -1197,11 +1197,11 @@ const SEED_NEWS = [
     source:"Bloomberg", time:"4h ago", category:"Energy",
     tickers:["XOM","CVX","OXY"], sentiment:"bearish", impact:"medium",
     summary:"WTI crude fell 2.1% after OPEC+ indicated it may accelerate supply increases in Q3, compressing margins for US shale producers including Exxon." },
-  { id:"n6", headline:"Microsoft Azure growth reaccelerates to 31% — Copilot adoption cited",
+  { id:"n6", headline:"Microsoft Azure growth reaccelerates to 31% - Copilot adoption cited",
     source:"CNBC", time:"5h ago", category:"Technology",
     tickers:["MSFT","AMZN","GOOGL"], sentiment:"bullish", impact:"high",
     summary:"Cloud revenue momentum returned after two quarters of deceleration. Management said Copilot Enterprise contributed approximately 4 percentage points of growth." },
-  { id:"n7", headline:"Visa cross-border volume hits all-time high — travel recovery intact",
+  { id:"n7", headline:"Visa cross-border volume hits all-time high - travel recovery intact",
     source:"Visa IR", time:"6h ago", category:"Finance",
     tickers:["V","MA","PYPL"], sentiment:"bullish", impact:"medium",
     summary:"Cross-border payment volume grew 18% year-over-year in May. Visa guided full-year revenue growth of 12-13%, above consensus of 11%." },
@@ -1209,15 +1209,15 @@ const SEED_NEWS = [
     source:"MarketWatch", time:"8h ago", category:"Macro",
     tickers:["GLD","IAU","GOLD"], sentiment:"bullish", impact:"medium",
     summary:"Spot gold reached its highest level since February. The DXY dollar index fell 0.6% following dovish Fed minutes, reigniting demand for safe-haven assets." },
-  { id:"n9", headline:"AMD gains share in AI training chips — new MI400 roadmap unveiled",
+  { id:"n9", headline:"AMD gains share in AI training chips - new MI400 roadmap unveiled",
     source:"The Information", time:"10h ago", category:"Technology",
     tickers:["AMD","NVDA","INTC"], sentiment:"bullish", impact:"medium",
     summary:"AMD's MI300X accelerator now powers 15 of the top 20 US hyperscaler AI workloads. The MI400 series, due H1 2026, is claimed to match NVIDIA H100 performance at lower cost." },
-  { id:"n10", headline:"Johnson & Johnson loses talc lawsuit appeal — $6.4B liability reaffirmed",
+  { id:"n10", headline:"Johnson & Johnson loses talc lawsuit appeal - $6.4B liability reaffirmed",
     source:"Reuters", time:"12h ago", category:"Healthcare",
     tickers:["JNJ","PFE"], sentiment:"bearish", impact:"high",
     summary:"The Third Circuit Court of Appeals upheld the ruling, blocking J&J's second attempt to use bankruptcy proceedings to settle talc-related cancer claims." },
-  { id:"n11", headline:"Amazon Web Services hits 38.7% operating margin — AI inference key driver",
+  { id:"n11", headline:"Amazon Web Services hits 38.7% operating margin - AI inference key driver",
     source:"TechCrunch", time:"14h ago", category:"Technology",
     tickers:["AMZN","MSFT","GOOGL"], sentiment:"bullish", impact:"high",
     summary:"AWS operating income beat consensus by $800M. Amazon Bedrock now serves over 50,000 active enterprise customers, up from 10,000 six months ago." },
@@ -1236,12 +1236,12 @@ const SENTIMENT_MAP = {
 };
 
 const IMPACT_MAP = {
-  high:  { color:"#E5484D", bg:"#E5484D14", dot:"●" },
-  medium:{ color:"#F59E0B", bg:"#F59E0B14", dot:"●" },
-  low:   { color:"#8892A4", bg:"#1C2333",   dot:"●" },
+  high:  { color:"#E5484D", bg:"#E5484D14", dot:"?" },
+  medium:{ color:"#F59E0B", bg:"#F59E0B14", dot:"?" },
+  low:   { color:"#8892A4", bg:"#1C2333",   dot:"?" },
 };
 
-// ── AI DEEP ANALYSIS per article ────────────────────────────────────
+// -- AI DEEP ANALYSIS per article ------------------------------------
 const NewsAnalysisPanel = ({ article, holdingSyms, watchlistSyms }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [loading, setLoading]   = useState(false);
@@ -1277,28 +1277,28 @@ Respond ONLY with a JSON object (no markdown):
     <button onClick={analyze} style={{marginTop:10,background:"transparent",
       border:"1px solid #00C89633",color:"#00C896",padding:"5px 12px",
       borderRadius:6,cursor:"pointer",fontSize:11,fontFamily:"inherit",letterSpacing:"0.05em"}}>
-      ⚡ AI Analysis
+      ? AI Analysis
     </button>
   );
 
   if (loading) return (
     <div style={{marginTop:10,fontSize:12,color:"#3D4A5C",display:"flex",alignItems:"center",gap:6}}>
-      <span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>◌</span> Analyzing…
+      <span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>?</span> Analyzing?
     </div>
   );
 
   return (
     <div style={{marginTop:12,background:"#141820",border:"1px solid #1C2333",borderRadius:8,overflow:"hidden"}}>
       <div style={{padding:"10px 14px",borderBottom:"1px solid #1C2333",display:"flex",alignItems:"center",gap:6}}>
-        <span style={{fontSize:10,color:"#00C896",letterSpacing:"0.1em",fontWeight:600}}>⚡ AI ANALYSIS</span>
+        <span style={{fontSize:10,color:"#00C896",letterSpacing:"0.1em",fontWeight:600}}>? AI ANALYSIS</span>
       </div>
       <div style={{padding:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
         {[
-          {label:"What Happened",  val:analysis.what_happened,   icon:"📌"},
-          {label:"Why It Matters", val:analysis.why_it_matters,  icon:"💡"},
-          {label:"Your Exposure",  val:analysis.portfolio_exposure,icon:"📊"},
-          {label:"Risks",          val:analysis.risks,            icon:"⚠"},
-          {label:"Opportunities",  val:analysis.opportunities,    icon:"🚀"},
+          {label:"What Happened",  val:analysis.what_happened,   icon:"?"},
+          {label:"Why It Matters", val:analysis.why_it_matters,  icon:"?"},
+          {label:"Your Exposure",  val:analysis.portfolio_exposure,icon:"?"},
+          {label:"Risks",          val:analysis.risks,            icon:"?"},
+          {label:"Opportunities",  val:analysis.opportunities,    icon:"?"},
         ].filter(r=>r.val).map(({label,val,icon})=>(
           <div key={label}>
             <div style={{fontSize:10,color:"#3D4A5C",letterSpacing:"0.08em",marginBottom:3}}>{icon} {label.toUpperCase()}</div>
@@ -1307,7 +1307,7 @@ Respond ONLY with a JSON object (no markdown):
         ))}
         {analysis.affected_stocks?.length>0&&(
           <div>
-            <div style={{fontSize:10,color:"#3D4A5C",letterSpacing:"0.08em",marginBottom:6}}>📈 AFFECTED STOCKS</div>
+            <div style={{fontSize:10,color:"#3D4A5C",letterSpacing:"0.08em",marginBottom:6}}>? AFFECTED STOCKS</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
               {analysis.affected_stocks.map(s=>(
                 <div key={s.sym} style={{display:"flex",alignItems:"center",gap:5,padding:"4px 9px",
@@ -1316,7 +1316,7 @@ Respond ONLY with a JSON object (no markdown):
                   borderRadius:5}}>
                   <span style={{fontSize:12,fontWeight:700,fontFamily:"monospace",
                     color:s.direction==="up"?"#00C896":s.direction==="down"?"#E5484D":"#8892A4"}}>{s.sym}</span>
-                  <span style={{fontSize:10,color:"#8892A4"}}>{s.direction==="up"?"↑":s.direction==="down"?"↓":"→"}</span>
+                  <span style={{fontSize:10,color:"#8892A4"}}>{s.direction==="up"?"?":s.direction==="down"?"?":"->"}</span>
                 </div>
               ))}
             </div>
@@ -1330,7 +1330,7 @@ Respond ONLY with a JSON object (no markdown):
   );
 };
 
-// ── NEWS CARD ────────────────────────────────────────────────────────
+// -- NEWS CARD --------------------------------------------------------
 const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -1359,7 +1359,7 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
         <div style={{padding:"7px 14px",background:article.sentiment==="bullish"?"#00C89610":"#E5484D10",
           borderBottom:`1px solid ${article.sentiment==="bullish"?"#00C89630":"#E5484D30"}`,
           display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-          <span style={{fontSize:11}}>{article.sentiment==="bullish"?"📈":"🚨"}</span>
+          <span style={{fontSize:11}}>{article.sentiment==="bullish"?"?":"?"}</span>
           <span style={{fontSize:11,fontWeight:600,color:article.sentiment==="bullish"?"#00C896":"#E5484D"}}>
             Impacts Your Portfolio
           </span>
@@ -1377,7 +1377,7 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
       {!hasPortfolioExposure&&hasWatchlistExposure&&(
         <div style={{padding:"7px 14px",background:"#F59E0B0A",borderBottom:"1px solid #F59E0B25",
           display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-          <span style={{fontSize:11}}>👀</span>
+          <span style={{fontSize:11}}>?</span>
           <span style={{fontSize:11,fontWeight:600,color:"#F59E0B"}}>Watchlist Opportunity</span>
           <div style={{display:"flex",gap:5}}>
             {myWatchlist.map(t=>(
@@ -1393,9 +1393,9 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
         {/* Meta row */}
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:8,flexWrap:"wrap"}}>
           <span style={{fontSize:9,color:"#3D4A5C",fontWeight:500}}>{article.source}</span>
-          <span style={{fontSize:9,color:"#1C2333"}}>·</span>
+          <span style={{fontSize:9,color:"#1C2333"}}>.</span>
           <span style={{fontSize:9,color:"#3D4A5C"}}>{article.time}</span>
-          <span style={{fontSize:9,color:"#1C2333"}}>·</span>
+          <span style={{fontSize:9,color:"#1C2333"}}>.</span>
           {/* Sentiment badge */}
           <span style={{fontSize:9,color:S.color,background:S.bg,padding:"2px 6px",
             borderRadius:3,fontWeight:600,letterSpacing:"0.04em"}}>{S.label.toUpperCase()}</span>
@@ -1426,7 +1426,7 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
                 color: inPort?"#F0F4FF":inWatch?"#F59E0B":"#8892A4",
                 background: inPort?(article.sentiment==="bullish"?"#00C89618":"#E5484D18"):inWatch?"#F59E0B14":"#141820",
                 border:`1px solid ${inPort?(article.sentiment==="bullish"?"#00C89630":"#E5484D30"):inWatch?"#F59E0B30":"#252E40"}`}}>
-                {t}{inPort?" 📊":inWatch?" 👀":""}
+                {t}{inPort?" ?":inWatch?" ?":""}
               </span>
             );
           })}
@@ -1439,14 +1439,14 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
         <button onClick={()=>setExpanded(e=>!e)}
           style={{fontSize:11,color:expanded?"#3D4A5C":"#3B82F6",background:"none",border:"none",
             cursor:"pointer",padding:0,display:"flex",alignItems:"center",gap:4}}>
-          {expanded?"▲ Collapse":"▼ Full Analysis"}
+          {expanded?"? Collapse":"? Full Analysis"}
         </button>
       </div>
     </div>
   );
 };
 
-// ── DAILY BRIEFING ───────────────────────────────────────────────────
+// -- DAILY BRIEFING --------------------------------------------------_
 const DailyBriefing = ({ holdings, watchlist }) => {
   const [brief,setBrief]     = useState<any>(null);
   const [loading,setLoading] = useState(false);
@@ -1470,7 +1470,7 @@ Focus on: earnings catalysts, macro risks, sector rotation, position-specific ri
 Return ONLY the JSON array.`;
       const txt = await callAI([{role:"user",content:prompt}]);
       setBrief(JSON.parse(txt.replace(/```json|```/g,"").trim()));
-    } catch (_e) { setBrief([{icon:"⚠",title:"Brief Unavailable",body:"Could not generate briefing. Check connection.",ticker:null,risk:"low"}]); }
+    } catch (_e) { setBrief([{icon:"?",title:"Brief Unavailable",body:"Could not generate briefing. Check connection.",ticker:null,risk:"low"}]); }
     setLoading(false);
   };
 
@@ -1484,7 +1484,7 @@ Return ONLY the JSON array.`;
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           <div style={{width:32,height:32,borderRadius:8,
             background:"linear-gradient(135deg,#00C896,#3B82F6)",
-            display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>📋</div>
+            display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>?</div>
           <div>
             <div style={{fontSize:13,fontWeight:700,color:"#F0F4FF"}}>Daily Portfolio Brief</div>
             <div style={{fontSize:10,color:"#3D4A5C"}}>{new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
@@ -1499,13 +1499,13 @@ Return ONLY the JSON array.`;
             </button>
           )}
           <button onClick={()=>setDismissed(true)} style={{background:"none",border:"none",
-            color:"#3D4A5C",cursor:"pointer",fontSize:18,padding:"0 4px"}}>×</button>
+            color:"#3D4A5C",cursor:"pointer",fontSize:18,padding:"0 4px"}}>x</button>
         </div>
       </div>
       {loading&&(
         <div style={{padding:"20px 16px",display:"flex",alignItems:"center",gap:10,color:"#8892A4",fontSize:13}}>
-          <span style={{animation:"spin 1s linear infinite",display:"inline-block",fontSize:16}}>◌</span>
-          Analyzing your portfolio…
+          <span style={{animation:"spin 1s linear infinite",display:"inline-block",fontSize:16}}>?</span>
+          Analyzing your portfolio?
         </div>
       )}
       {brief&&(
@@ -1539,7 +1539,7 @@ Return ONLY the JSON array.`;
   );
 };
 
-// ── MAIN NEWS INTELLIGENCE TAB ───────────────────────────────────────
+// -- MAIN NEWS INTELLIGENCE TAB --------------------------------------_
 const NewsIntelligence = ({ holdings, watchlist }) => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQ, setSearchQ]           = useState("");
@@ -1582,20 +1582,20 @@ const NewsIntelligence = ({ holdings, watchlist }) => {
             <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
               <span style={{fontSize:11,color:"#8892A4"}}>{SEED_NEWS.length} articles monitored</span>
               <span style={{fontSize:11,color:"#E5484D",background:"#E5484D14",padding:"2px 8px",borderRadius:4,fontWeight:600}}>
-                🚨 {portfolioCount} affect your portfolio
+                ? {portfolioCount} affect your portfolio
               </span>
               <span style={{fontSize:11,color:"#F59E0B",background:"#F59E0B14",padding:"2px 8px",borderRadius:4,fontWeight:600}}>
-                ⚡ {highImpactCount} high impact
+                ? {highImpactCount} high impact
               </span>
             </div>
           </div>
           <input value={searchQ} onChange={e=>setSearchQ(e.target.value)}
-            placeholder="Search news, tickers, sources…"
+            placeholder="Search news, tickers, sources?"
             style={{background:"#0E1117",border:"1px solid #1C2333",color:"#F0F4FF",
               padding:"8px 14px",borderRadius:8,fontSize:12,width:isMobile?"100%":"220px"}}/>
         </div>
 
-        {/* Filter chips — horizontally scrollable */}
+        {/* Filter chips - horizontally scrollable */}
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}}>
           {FILTER_TAGS.map(tag=>{
             const isActive=activeFilter===tag;
@@ -1624,7 +1624,7 @@ const NewsIntelligence = ({ holdings, watchlist }) => {
       {/* News feed */}
       {filtered.length===0?(
         <div style={{textAlign:"center",padding:"40px 0",color:"#3D4A5C"}}>
-          <div style={{fontSize:32,marginBottom:10}}>🔍</div>
+          <div style={{fontSize:32,marginBottom:10}}>?</div>
           <div style={{fontSize:14,marginBottom:4}}>No articles match this filter</div>
           <div style={{fontSize:12}}>Try a different filter or search term</div>
         </div>
@@ -1640,9 +1640,9 @@ const NewsIntelligence = ({ holdings, watchlist }) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 // ROOT APP
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const MARKET_BAR = [
   {l:"S&P 500",v:"5,431",p:"+0.62%",up:true},{l:"NASDAQ",v:"17,689",p:"+0.91%",up:true},
   {l:"DOW",v:"39,110",p:"+0.15%",up:true},{l:"VIX",v:"13.42",p:"-4.21%",up:false},
@@ -1651,14 +1651,14 @@ const MARKET_BAR = [
 ];
 
 
-// ── TOAST NOTIFICATION ───────────────────────────────────────────────
+// -- TOAST NOTIFICATION ----------------------------------------------_
 const Toast = ({ toast }) => {
   if (!toast) return null;
   const colors = {
-    success:{ bg:"#00C89618", border:"#00C89640", color:"#00C896", icon:"✓" },
-    error:  { bg:"#E5484D18", border:"#E5484D40", color:"#E5484D", icon:"✕" },
-    warn:   { bg:"#F59E0B18", border:"#F59E0B40", color:"#F59E0B", icon:"⚠" },
-    info:   { bg:"#3B82F618", border:"#3B82F640", color:"#3B82F6", icon:"ℹ" },
+    success:{ bg:"#00C89618", border:"#00C89640", color:"#00C896", icon:"OK" },
+    error:  { bg:"#E5484D18", border:"#E5484D40", color:"#E5484D", icon:"x" },
+    warn:   { bg:"#F59E0B18", border:"#F59E0B40", color:"#F59E0B", icon:"?" },
+    info:   { bg:"#3B82F618", border:"#3B82F640", color:"#3B82F6", icon:"?" },
   };
   const s = colors[toast.type] || colors.info;
   return (
@@ -1676,17 +1676,17 @@ const Toast = ({ toast }) => {
 };
 
 
-// ══════════════════════════════════════════════════════════════════════
-// FEE CALCULATOR — BND Investment Fee Engine
+// ======================================================================
+// FEE CALCULATOR - BND Investment Fee Engine
 // Rules: <BND2000 = fixed BND20 | >=BND2000 = 0.4% of amount
-// ══════════════════════════════════════════════════════════════════════
+// ======================================================================
 const calcFee = (amount: number) => {
   if (!amount || amount <= 0) return { fee: 0, formula: "", net: 0, pct: 0 };
   if (amount < 2000) {
     return { fee: 20, formula: "Fixed fee (investment < BND 2,000)", net: amount - 20, pct: (20/amount)*100 };
   }
   const fee = amount * 0.004;
-  return { fee, formula: "0.4% × BND " + fmt(amount), net: amount - fee, pct: 0.4 };
+  return { fee, formula: "0.4% x BND " + fmt(amount), net: amount - fee, pct: 0.4 };
 };
 
 const FeeCalculator = () => {
@@ -1761,6 +1761,6 @@ const FeeCalculator = () => {
             <div style={{ background: amount < 2000 ? "#F59E0B14" : "#00C89614",
               border: `1px solid ${amount < 2000 ? "#F59E0B30" : "#00C89630"}`,
               borderRadius: 8, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>{amount < 2000 ? "📌" : "📊"}</span>
+              <span style={{ fontSize: 16 }}>{amount < 2000 ? "?" : "?"}</span>
               <div>
-              
+                <d
