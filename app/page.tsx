@@ -14,7 +14,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 // ── DATA LAYER ───────────────────────────────────────────────────────
 // FIX: Multi-source fetch — Finnhub (free tier) → Yahoo fallback → mock
 // FIX: callAI() centralises all Anthropic calls — swap body for /api/ai in Next.js
-const CACHE = {};
+const CACHE: Record<string, { data: any; ts: number }> = {};
 const CACHE_TTL = 45000; // 45s — Finnhub free tier: 60 req/min
 
 // Safe AI wrapper — in production, replace URL with "/api/ai" (Next.js API route)
@@ -31,7 +31,7 @@ const callAI = async (messages, max_tokens = 1000) => {
     throw new Error(err.error || `AI error ${res.status}`);
   }
   const d = await res.json();
-  return (d.content || []).map(b => b.text || "").join("");
+  return (d.content || []).map((b: any) => b.text || "").join("");
 };
 
 const fetchQuote = async (symbol) => {
@@ -66,7 +66,7 @@ const fetchQuote = async (symbol) => {
         return data;
       }
     }
-  } catch { /* fall through to mock */ }
+  } catch (_e) { /* fall through to mock */ }
 
   // Fallback: deterministic mock (always works, never breaks the UI)
   return getMockQuote(symbol);
@@ -212,7 +212,7 @@ const DEFAULT_WATCHLIST = [
 const TickerAutocomplete = ({ value, onChange, onSelect, placeholder = "Search ticker or company…" }) => {
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement>(null);
 
   const suggestions = useMemo(() => {
     if (!value || value.length < 1) return [];
@@ -365,7 +365,7 @@ const Input = ({value,onChange,placeholder,type="text",style={}}) => (
 const Modal = ({title,onClose,children}) => (
   <div style={{position:"fixed",inset:0,background:"#000000AA",zIndex:200,display:"flex",
     alignItems:"flex-end",justifyContent:"center",padding:"0"}}
-    onClick={e=>e.target===e.currentTarget&&onClose()}>
+    onClick={(e: React.MouseEvent<HTMLDivElement>)=>e.target===e.currentTarget&&onClose()}>
     <div style={{background:"#0E1117",border:"1px solid #252E40",borderRadius:"14px 14px 0 0",
       width:"100%",maxWidth:520,maxHeight:"92vh",overflow:"auto",
       animation:"slideUp 0.22s ease"}}>
@@ -512,12 +512,12 @@ const MktCapGrowthCard = ({holding,quote}) => {
 // HOLDINGS MANAGER
 // ══════════════════════════════════════════════════════════════════════
 const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
-  const [modal,setModal]         = useState(null);
-  const [editTarget,setEditTarget] = useState(null);
+  const [modal,setModal]         = useState<any>(null);
+  const [editTarget,setEditTarget] = useState<any>(null);
   const [symInput,setSymInput]   = useState("");
   const [form,setForm]           = useState({sym:"",sector:"Technology",shares:"",avgCost:"",date:new Date().toISOString().slice(0,10)});
   const [lotForm,setLotForm]     = useState({shares:"",avgCost:"",date:new Date().toISOString().slice(0,10)});
-  const [expanded,setExpanded]   = useState(null);
+  const [expanded,setExpanded]   = useState<any>(null);
   const isMobile = useIsMobile();
 
   const openAdd = () => {
@@ -720,8 +720,8 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
                                   <Pct v={r} size={10}/>
                                   <button onClick={()=>removeLot(h.id,lot.id)}
                                     style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:13,marginLeft:"auto",padding:"2px 5px"}}
-                                    onMouseEnter={e=>e.target.style.color="#E5484D"}
-                                    onMouseLeave={e=>e.target.style.color="#3D4A5C"}>✕</button>
+                                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")}
+                                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
                                 </div>
                               );
                             })}
@@ -909,8 +909,8 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
                   </>):<span style={{fontSize:11,color:"#3D4A5C",flex:1}}>Loading...</span>}
                   <button onClick={()=>{ if(window.confirm(`Remove ${w.sym} from watchlist?`)) remove(w.id); }}
                     style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:14,padding:"2px 4px",marginLeft:"auto"}}
-                    onMouseEnter={e=>e.target.style.color="#E5484D"}
-                    onMouseLeave={e=>e.target.style.color="#3D4A5C"}>✕</button>
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
                 </div>
               );
             })}
@@ -931,7 +931,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
                     <div style={{fontSize:9,color:"#3D4A5C"}}>{w.group}</div>
                   </div>
                   <button onClick={()=>remove(w.id)} style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:12,padding:"0 2px"}}
-                    onMouseEnter={e=>e.target.style.color="#E5484D"} onMouseLeave={e=>e.target.style.color="#3D4A5C"}>✕</button>
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")} onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
                 </div>
                 {q?<>
                   <div style={{fontSize:16,fontWeight:700,fontFamily:"monospace",color:"#F0F4FF",marginBottom:4}}>${fmt(q.price)}</div>
@@ -956,7 +956,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
                 <span style={{fontSize:10,color:"#3D4A5C",flex:1}}>{w.group}</span>
                 {q&&<><span style={{fontSize:12,fontFamily:"monospace",color:"#F0F4FF"}}>${fmt(q.price)}</span><Pct v={q.pct} size={10}/></>}
                 <button onClick={()=>remove(w.id)} style={{background:"none",border:"none",color:"#3D4A5C",cursor:"pointer",fontSize:12,padding:"1px 4px"}}
-                  onMouseEnter={e=>e.target.style.color="#E5484D"} onMouseLeave={e=>e.target.style.color="#3D4A5C"}>✕</button>
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#E5484D")} onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>)=>(e.currentTarget.style.color="#3D4A5C")}>✕</button>
               </div>
             );
           })}
@@ -1243,7 +1243,7 @@ const IMPACT_MAP = {
 
 // ── AI DEEP ANALYSIS per article ────────────────────────────────────
 const NewsAnalysisPanel = ({ article, holdingSyms, watchlistSyms }) => {
-  const [analysis, setAnalysis] = useState(null);
+  const [analysis, setAnalysis] = useState<any>(null);
   const [loading, setLoading]   = useState(false);
 
   const analyze = async () => {
@@ -1448,7 +1448,7 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
 
 // ── DAILY BRIEFING ───────────────────────────────────────────────────
 const DailyBriefing = ({ holdings, watchlist }) => {
-  const [brief,setBrief]     = useState(null);
+  const [brief,setBrief]     = useState<any>(null);
   const [loading,setLoading] = useState(false);
   const [dismissed,setDismissed] = useState(false);
 
@@ -1470,7 +1470,7 @@ Focus on: earnings catalysts, macro risks, sector rotation, position-specific ri
 Return ONLY the JSON array.`;
       const txt = await callAI([{role:"user",content:prompt}]);
       setBrief(JSON.parse(txt.replace(/```json|```/g,"").trim()));
-    } catch { setBrief([{icon:"⚠",title:"Brief Unavailable",body:"Could not generate briefing. Check connection.",ticker:null,risk:"low"}]); }
+    } catch (_e) { setBrief([{icon:"⚠",title:"Brief Unavailable",body:"Could not generate briefing. Check connection.",ticker:null,risk:"low"}]); }
     setLoading(false);
   };
 
@@ -1679,16 +1679,16 @@ const Toast = ({ toast }) => {
 const LS_HOLDINGS  = "ob_holdings_v1";
 const LS_WATCHLIST = "ob_watchlist_v1";
 const loadLS = (key, fallback) => {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-  catch { return fallback; }
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (_e) { return fallback; }
 };
-const saveLS = (key, val) => {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+const saveLS = (key: string, val: any) => {
+  if (typeof window === 'undefined') return;
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (_e) {}
 };
 
 // ── MOBILE HOOK ───────────────────────────────────────────────────────
 const useIsMobile = () => {
-  const [mobile, setMobile] = useState(() => window.innerWidth < 640);
+  const [mobile, setMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 640 : false);
   useEffect(() => {
     const h = () => setMobile(window.innerWidth < 640);
     window.addEventListener("resize", h, { passive: true });
@@ -1702,11 +1702,11 @@ export default function App() {
   const [holdings,setHoldingsRaw]  = useState(() => loadLS(LS_HOLDINGS, DEFAULT_HOLDINGS));
   const [watchlist,setWatchlistRaw]= useState(() => loadLS(LS_WATCHLIST, DEFAULT_WATCHLIST));
   const [quotes,setQuotes]      = useState({});
-  const [lastUpdate,setLastUpdate] = useState(null);
+  const [lastUpdate,setLastUpdate] = useState<any>(null);
   const [time,setTime]          = useState(new Date());
   const [fetching,setFetching]  = useState(false);
   const [mobileMenuOpen,setMobileMenuOpen] = useState(false);
-  const [toast,setToast]        = useState(null); // {msg, type: "success"|"error"|"warn"}
+  const [toast,setToast]        = useState<any>(null); // {msg, type: "success"|"error"|"warn"}
   const isMobile                = useIsMobile();
   const fetchRef = useRef(false);
   const toastTimer              = useRef(null);
@@ -1746,7 +1746,7 @@ export default function App() {
     fetchRef.current=true; setFetching(true);
     const results={};
     for(const sym of allSymbols) {
-      try { results[sym]=await fetchQuote(sym); } catch { results[sym]=getMockQuote(sym); }
+      try { results[sym]=await fetchQuote(sym); } catch (_e) { results[sym]=getMockQuote(sym); }
       await new Promise(r=>setTimeout(r,120));
     }
     setQuotes(prev=>({...prev,...results}));
