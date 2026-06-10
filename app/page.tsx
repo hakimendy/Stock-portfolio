@@ -1826,8 +1826,18 @@ export default function App() {
               <nav style={{display:"flex",gap:2}}>
                 {nav.map(n=>{
                   const isNews = n.id==="news";
+                  const isTools = n.id==="tools";
                   const holdingSyms = holdings.map(h=>h.sym);
                   const newsAlerts = isNews ? SEED_NEWS.filter(a=>a.tickers.some(t=>holdingSyms.includes(t))&&a.impact==="high").length : 0;
+                  if(isTools) return (
+                    <a key={n.id} href="/tools"
+                      style={{padding:"5px 11px",borderRadius:6,border:"none",cursor:"pointer",
+                        fontSize:12,fontWeight:400,color:"#8892A4",textDecoration:"none",
+                        background:"transparent",transition:"all 0.15s",
+                        display:"flex",alignItems:"center",gap:5,minHeight:36}}>
+                      Fee Calc
+                    </a>
+                  );
                   return (
                     <button key={n.id} onClick={()=>setTab(n.id)}
                       style={{padding:"5px 11px",borderRadius:6,border:"none",cursor:"pointer",
@@ -1915,15 +1925,26 @@ export default function App() {
       {isMobile&&(
         <div className="bottom-nav" style={{display:"flex",borderTop:"1px solid #1C2333",background:"#07090D",flexShrink:0,
           position:"sticky",bottom:0,zIndex:50}}>
-          {nav.map(n=>(
-            <button key={n.id} onClick={()=>{setTab(n.id);setMobileMenuOpen(false);}}
-              style={{flex:1,padding:"10px 4px",border:"none",cursor:"pointer",
-                color:tab===n.id?"#00C896":"#3D4A5C",background:"transparent",
-                display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-              <span style={{fontSize:14}}>{n.icon}</span>
-              <span style={{fontSize:9,letterSpacing:"0.04em",fontWeight:tab===n.id?600:400}}>{n.label}</span>
-            </button>
-          ))}
+          {nav.map(n=>{
+            if(n.id==="tools") return (
+              <a key={n.id} href="/tools"
+                style={{flex:1,padding:"10px 4px",textDecoration:"none",
+                  color:"#3D4A5C",background:"transparent",
+                  display:"flex",flexDirection:"column",alignItems:"center",gap:2,minHeight:44}}>
+                <span style={{fontSize:14}}>$</span>
+                <span style={{fontSize:9,letterSpacing:"0.04em"}}>Calc</span>
+              </a>
+            );
+            return (
+              <button key={n.id} onClick={()=>{setTab(n.id);setMobileMenuOpen(false);}}
+                style={{flex:1,padding:"10px 4px",border:"none",cursor:"pointer",
+                  color:tab===n.id?"#00C896":"#3D4A5C",background:"transparent",
+                  display:"flex",flexDirection:"column",alignItems:"center",gap:2,minHeight:44}}>
+                <span style={{fontSize:14}}>{n.icon}</span>
+                <span style={{fontSize:9,letterSpacing:"0.04em",fontWeight:tab===n.id?600:400}}>{n.label}</span>
+              </button>
+            );
+          })}
         </div>
       )}
 
