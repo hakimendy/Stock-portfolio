@@ -1238,9 +1238,9 @@ const SENTIMENT_MAP = {
 };
 
 const IMPACT_MAP = {
-  high:  { color:"#E5484D", bg:"#E5484D14", dot:"?" },
-  medium:{ color:"#F59E0B", bg:"#F59E0B14", dot:"?" },
-  low:   { color:"#8892A4", bg:"#1C2333",   dot:"?" },
+  high:  { color:"#E5484D", bg:"#E5484D14", dot:"!!" },
+  medium:{ color:"#F59E0B", bg:"#F59E0B14", dot:"!" },
+  low:   { color:"#8892A4", bg:"#1C2333",   dot:"~" },
 };
 
 // -- AI DEEP ANALYSIS per article ------------------------------------
@@ -1296,11 +1296,11 @@ Respond ONLY with a JSON object (no markdown):
       </div>
       <div style={{padding:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
         {[
-          {label:"What Happened",  val:analysis.what_happened,   icon:"?"},
-          {label:"Why It Matters", val:analysis.why_it_matters,  icon:"?"},
-          {label:"Your Exposure",  val:analysis.portfolio_exposure,icon:"?"},
-          {label:"Risks",          val:analysis.risks,            icon:"?"},
-          {label:"Opportunities",  val:analysis.opportunities,    icon:"?"},
+          {label:"What Happened",  val:analysis.what_happened,   icon:"[i]"},
+          {label:"Why It Matters", val:analysis.why_it_matters,  icon:"[!]"},
+          {label:"Your Exposure",  val:analysis.portfolio_exposure,icon:"[P]"},
+          {label:"Risks",          val:analysis.risks,            icon:"[R]"},
+          {label:"Opportunities",  val:analysis.opportunities,    icon:"[+]"},
         ].filter(r=>r.val).map(({label,val,icon})=>(
           <div key={label}>
             <div style={{fontSize:10,color:"#3D4A5C",letterSpacing:"0.08em",marginBottom:3}}>{icon} {label.toUpperCase()}</div>
@@ -1318,7 +1318,7 @@ Respond ONLY with a JSON object (no markdown):
                   borderRadius:5}}>
                   <span style={{fontSize:12,fontWeight:700,fontFamily:"monospace",
                     color:s.direction==="up"?"#00C896":s.direction==="down"?"#E5484D":"#8892A4"}}>{s.sym}</span>
-                  <span style={{fontSize:10,color:"#8892A4"}}>{s.direction==="up"?"?":s.direction==="down"?"?":"->"}</span>
+                  <span style={{fontSize:10,color:"#8892A4"}}>{s.direction==="up"?"^":s.direction==="down"?"v":"-"}</span>
                 </div>
               ))}
             </div>
@@ -1361,7 +1361,7 @@ const NewsCard = ({ article, holdingSyms, watchlistSyms, isMobile }) => {
         <div style={{padding:"7px 14px",background:article.sentiment==="bullish"?"#00C89610":"#E5484D10",
           borderBottom:`1px solid ${article.sentiment==="bullish"?"#00C89630":"#E5484D30"}`,
           display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-          <span style={{fontSize:11}}>{article.sentiment==="bullish"?"?":"?"}</span>
+          <span style={{fontSize:11}}>{article.sentiment==="bullish"?"^":"v"}</span>
           <span style={{fontSize:11,fontWeight:600,color:article.sentiment==="bullish"?"#00C896":"#E5484D"}}>
             Impacts Your Portfolio
           </span>
@@ -1472,7 +1472,7 @@ Focus on: earnings catalysts, macro risks, sector rotation, position-specific ri
 Return ONLY the JSON array.`;
       const txt = await callAI([{role:"user",content:prompt}]);
       setBrief(JSON.parse(txt.replace(/```json|```/g,"").trim()));
-    } catch (_e) { setBrief([{icon:"?",title:"Brief Unavailable",body:"Could not generate briefing. Check connection.",ticker:null,risk:"low"}]); }
+    } catch (_e) { setBrief([{icon:"[!]",title:"Brief Unavailable",body:"Could not generate briefing. Check connection.",ticker:null,risk:"low"}]); }
     setLoading(false);
   };
 
@@ -1659,8 +1659,8 @@ const Toast = ({ toast }) => {
   const colors = {
     success:{ bg:"#00C89618", border:"#00C89640", color:"#00C896", icon:"OK" },
     error:  { bg:"#E5484D18", border:"#E5484D40", color:"#E5484D", icon:"x" },
-    warn:   { bg:"#F59E0B18", border:"#F59E0B40", color:"#F59E0B", icon:"?" },
-    info:   { bg:"#3B82F618", border:"#3B82F640", color:"#3B82F6", icon:"?" },
+    warn:   { bg:"#F59E0B18", border:"#F59E0B40", color:"#F59E0B", icon:"!" },
+    info:   { bg:"#3B82F618", border:"#3B82F640", color:"#3B82F6", icon:"i" },
   };
   const s = colors[toast.type] || colors.info;
   return (
@@ -2002,7 +2002,7 @@ export default function App() {
             style={{background:"#141820",border:"1px solid #1C2333",color:fetching?"#3D4A5C":"#8892A4",
               borderRadius:6,padding:"5px 10px",cursor:fetching?"not-allowed":"pointer",
               fontSize:11,display:"flex",alignItems:"center",gap:5}}>
-            <span style={{display:"inline-block",animation:fetching?"spin 1s linear infinite":"none",fontSize:13}}>?</span>
+            <span style={{display:"inline-block",animation:fetching?"spin 1s linear infinite":"none",fontSize:11}}>@</span>
             {fetching?"...":"Refresh"}
           </button>
           <div className="desktop-only" style={{display:"flex",alignItems:"center",gap:4}}>
