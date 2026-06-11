@@ -1,5 +1,5 @@
 "use client";
-// OpenBell Portfolio - app/page.tsx
+// Stock Profile - app/page.tsx
 // This is the main application page served by Next.js
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
@@ -1959,8 +1959,8 @@ export default function App() {
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           <div style={{width:26,height:26,background:"linear-gradient(135deg,#00C896,#3B82F6)",
             borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center",
-            fontSize:12,fontWeight:800,color:"#07090D",flexShrink:0}}>O</div>
-          <span style={{fontWeight:800,fontSize:isMobile?14:15,letterSpacing:"-0.03em"}}>OpenBell</span>
+            fontSize:10,fontWeight:800,color:"#07090D",flexShrink:0,letterSpacing:"-0.05em"}}>HE</div>
+          <span style={{fontWeight:800,fontSize:isMobile?14:15,letterSpacing:"-0.03em"}}>Stock Profile</span>
           {!isMobile&&(
             <>
               <div style={{width:1,height:16,background:"#1C2333"}}/>
@@ -2087,7 +2087,7 @@ export default function App() {
 
       <div style={{borderTop:"1px solid #1C2333",padding:"8px 24px",display:"flex",justifyContent:"space-between",
         fontSize:10,color:"#3D4A5C",flexShrink:0}}>
-        <span>OpenBell Portfolio . Not financial advice . Data: Finnhub / Yahoo Finance (may be delayed)</span>
+        <span>Stock Profile . Not financial advice . Data: Finnhub / Yahoo Finance (may be delayed)</span>
         <span>{lastUpdate?"Updated "+new Date(lastUpdate).toLocaleTimeString():"Initializing..."}</span>
       </div>
       <Toast toast={toast}/>
