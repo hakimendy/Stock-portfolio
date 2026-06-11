@@ -392,6 +392,7 @@ const SecLabel = ({children,right}) => (
 // MARKET CAP GROWTH CARD
 // ======================================================================
 const MktCapGrowthCard = ({holding,quote}) => {
+  const isMobile = useIsMobile();
   const firstLot = [...holding.lots].sort((a,b)=>a.date.localeCompare(b.date))[0];
   const purchaseMktCap = getHistoricalMktCap(holding.sym,firstLot.date);
   const currentMktCap  = quote?.mktcap||null;
