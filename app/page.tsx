@@ -1111,7 +1111,7 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
             <div style={{padding:"12px 16px",borderBottom:"1px solid #1C2333"}}>
               <span style={{fontSize:10,color:"#8892A4",letterSpacing:"0.14em",fontWeight:600}}>WATCHLIST</span>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(3,1fr)",gap:0}}>
+            <div className="watchlist-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:0}}>
               {watchlist.slice(0,6).map((w,i)=>{
                 const q=quotes[w.sym];
                 const cols=isMobile?2:3;
@@ -1788,7 +1788,7 @@ export default function App() {
         ::-webkit-scrollbar-thumb{background:#1C2333;border-radius:2px}
 
         /* -- FORMS -- */
-        input,select,textarea{outline:none;font-family:inherit;font-size:16px;-webkit-appearance:none;border-radius:0}
+        input,select,textarea{outline:none;font-family:inherit;-webkit-appearance:none}
         input:focus,select:focus,textarea:focus{border-color:#3B82F6!important}
         input::placeholder,textarea::placeholder{color:#3D4A5C}
         input[type=number]{-moz-appearance:textfield}
@@ -2012,10 +2012,9 @@ export default function App() {
         {tab==="growth"   &&<GrowthEngine holdings={holdings} quotes={quotes}/>}
       </div>
 
-      {/* Bottom nav for mobile */}
-      {isMobile&&(
-        <nav className="bottom-nav mobile-bottom-nav" aria-label="Mobile navigation" style={{display:"none",borderTop:"1px solid #1C2333",background:"#07090D",flexShrink:0,
-          position:"sticky",bottom:0,zIndex:50}}>
+      {/* Bottom nav for mobile - always in DOM, CSS controls visibility */}
+      <nav className="bottom-nav mobile-bottom-nav" aria-label="Mobile navigation" style={{display:"none",borderTop:"1px solid #1C2333",background:"#07090D",flexShrink:0,
+        position:"sticky",bottom:0,zIndex:50}}>
           {nav.map(n=>{
             if(n.id==="tools") return (
               <a key={n.id} href="/tools"
@@ -2036,8 +2035,7 @@ export default function App() {
               </button>
             );
           })}
-        </nav>
-      )}
+      </nav>
 
       <div style={{borderTop:"1px solid #1C2333",padding:"8px 24px",display:"flex",justifyContent:"space-between",
         fontSize:10,color:"#3D4A5C",flexShrink:0}}>
