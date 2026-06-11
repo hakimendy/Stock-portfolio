@@ -1681,7 +1681,8 @@ const Toast = ({ toast }) => {
 // -- PERSISTENCE HELPERS ----------------------------------------------
 const LS_HOLDINGS  = "ob_holdings_v1";
 const LS_WATCHLIST = "ob_watchlist_v1";
-const loadLS = (key, fallback) => {
+const loadLS = (key: string, fallback: any) => {
+  if (typeof window === 'undefined') return fallback;
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (_e) { return fallback; }
 };
 const saveLS = (key: string, val: any) => {
@@ -1691,14 +1692,59 @@ const saveLS = (key: string, val: any) => {
 
 // -- MOBILE HOOK ------------------------------------------------------_
 const useIsMobile = () => {
-  const [mobile, setMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 640 : false);
+  const [mobile, setMobile] = useState(false); // always false on server
   useEffect(() => {
+    // Only runs on client after hydration - no mismatch
+    setMobile(window.innerWidth < 640);
     const h = () => setMobile(window.innerWidth < 640);
     window.addEventListener("resize", h, { passive: true });
     return () => window.removeEventListener("resize", h);
   }, []);
   return mobile;
 };
+
+
+// -- ERROR BOUNDARY --------------------------------------------------
+class ErrorBoundary extends React.Component<
+  {children: React.ReactNode},
+  {error: Error | null}
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{background:"#07090D",minHeight:"100vh",display:"flex",
+          alignItems:"center",justifyContent:"center",padding:20,fontFamily:"monospace"}}>
+          <div style={{background:"#0E1117",border:"1px solid #E5484D",borderRadius:12,
+            padding:24,maxWidth:600,width:"100%"}}>
+            <div style={{color:"#E5484D",fontSize:14,fontWeight:700,marginBottom:12}}>
+              Application Error
+            </div>
+            <div style={{color:"#F0F4FF",fontSize:13,marginBottom:8}}>
+              {this.state.error.message}
+            </div>
+            <pre style={{color:"#8892A4",fontSize:10,overflowX:"auto",
+              background:"#141820",padding:12,borderRadius:6,whiteSpace:"pre-wrap"}}>
+              {this.state.error.stack}
+            </pre>
+            <button onClick={()=>window.location.reload()}
+              style={{marginTop:16,background:"#00C896",border:"none",borderRadius:8,
+                color:"#07090D",padding:"10px 20px",cursor:"pointer",fontWeight:700}}>
+              Reload App
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const [tab,setTab]            = useState("dashboard");
@@ -1773,6 +1819,7 @@ export default function App() {
   ];
 
   return (
+    <ErrorBoundary>
     <div style={{background:"#07090D",minHeight:"100vh",fontFamily:"-apple-system,BlinkMacSystemFont,'Inter',sans-serif",color:"#F0F4FF",display:"flex",flexDirection:"column"}}>
       <style>{`
         /* -- RESET & BASE -- */
@@ -2044,5 +2091,6 @@ export default function App() {
       </div>
       <Toast toast={toast}/>
     </div>
+    </ErrorBoundary>
   );
 }
