@@ -477,7 +477,7 @@ const MktCapGrowthCard = ({holding,quote}) => {
             <div style={{fontSize:10,color:"#3D4A5C",letterSpacing:"0.1em",marginBottom:8}}>GROWTH SINCE PURCHASE</div>
             {metrics.map(m=>(
               <div key={m.label} style={{display:"flex",alignItems:"center",gap:10,marginBottom:7}}>
-                <span style={{fontSize:11,color:"#8892A4",minWidth:130,flexShrink:0}}>{m.label}</span>
+                <span style={{fontSize:11,color:"#8892A4",minWidth:0,flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.label}</span>
                 <div style={{flex:1,height:3,background:"#1C2333",borderRadius:2,overflow:"hidden"}}>
                   <div style={{width:Math.min(100,Math.abs(m.val)/8)+"%",height:"100%",background:pctC(m.val),borderRadius:2}}/>
                 </div>
@@ -573,7 +573,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
   const enrichedW = enriched.map(h=>({...h,weight:(h.mktVal/totalVal)*100}));
 
   return (
-    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1400,margin:"0 auto"}}>
+    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1400,margin:"0 auto",width:"100%"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:16,flexWrap:"wrap",gap:10}}>
         <div>
           <div style={{fontSize:isMobile?16:20,fontWeight:800,color:"#F0F4FF",letterSpacing:"-0.03em"}}>Holdings</div>
@@ -606,7 +606,7 @@ const HoldingsManager = ({holdings,setHoldings,quotes,showToast=()=>{}}) => {
               </div>
               {expanded===h.id&&(
                 <div style={{borderTop:"1px solid #1C2333",padding:"12px 14px"}}>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(140px,100%),1fr))",gap:8,marginBottom:10}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:10}}>
                     {[["Avg Cost","$"+fmt(h.avgCost),"#8892A4"],["Mkt Value","$"+fmt(h.mktVal),"#F0F4FF"],
                       ["Today",h.dayPct,null],["Weight",fmt(h.weight,1)+"%","#8892A4"]].map(([l,v,c])=>(
                       <div key={l} style={{background:"#141820",borderRadius:6,padding:"8px 10px",border:"1px solid #1C2333"}}>
@@ -845,7 +845,7 @@ const WatchlistManager = ({watchlist,setWatchlist,quotes,showToast=()=>{}}) => {
   const grouped  = filtered.reduce((acc,w)=>{acc[w.group]=[...(acc[w.group]||[]),w];return acc;},{});
 
   return (
-    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1100,margin:"0 auto"}}>
+    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1100,margin:"0 auto",width:"100%"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:16,flexWrap:"wrap",gap:10}}>
         <div>
           <div style={{fontSize:isMobile?16:20,fontWeight:800,color:"#F0F4FF",letterSpacing:"-0.03em"}}>Watchlist</div>
@@ -1009,7 +1009,7 @@ const GrowthEngine = ({holdings,quotes}) => {
           </div>
         ))}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(340px,100%),1fr))",gap:12}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(320px,100%),1fr))",gap:12}}>
         {enriched.map(h=><MktCapGrowthCard key={h.id} holding={h} quote={quotes[h.sym]}/>)}
       </div>
     </div>
@@ -1050,9 +1050,9 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
   ];
 
   return (
-    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1400,margin:"0 auto"}}>
+    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1400,margin:"0 auto",width:"100%"}}>
       {/* KPI strip - 2 rows on mobile, 1 on desktop */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
+      <div className="kpi-grid" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16,width:"100%"}}>
         {kpis.map(({l,v,c})=>(
           <div key={l} style={{background:"#0E1117",border:"1px solid #1C2333",borderRadius:10,padding:"11px 12px"}}>
             <div style={{fontSize:9,color:"#3D4A5C",letterSpacing:"0.1em",marginBottom:4}}>{l.toUpperCase()}</div>
@@ -1061,7 +1061,7 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
         ))}
       </div>
 
-      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 300px",gap:14}}>
+      <div className="dash-main" style={{display:"grid",gridTemplateColumns:"1fr 300px",gap:14,width:"100%"}}>
         <div>
           {/* Holdings table */}
           <div style={{background:"#0E1117",border:"1px solid #1C2333",borderRadius:12,overflow:"hidden",marginBottom:14}}>
@@ -1073,10 +1073,10 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
               <table style={{borderCollapse:"collapse",width:"100%",minWidth:isMobile?280:480}}>
                 <thead>
                   <tr style={{background:"#141820"}}>
-                    {(isMobile?["Symbol","Price","Ret%"]:["Symbol","Price","Value","Today","Return","Weight"]).map((h,i)=>(
-                      <th key={h} style={{padding:isMobile?"7px "+(i===0?"10px":"6px"):"8px "+(i===0?"16px":"8px"),
-                        textAlign:i===0?"left":"right",fontSize:9,color:"#3D4A5C",
-                        letterSpacing:"0.06em",fontWeight:600,whiteSpace:"nowrap"}}>{h}</th>
+                    {["Symbol","Price","Value","Today","Return","Weight"].map((h,i)=>(
+                      <th key={h} className={i===2?"col-value":i===3?"col-today":i===5?"col-weight":""}
+                        style={{padding:"8px "+(i===0?"16px":"8px"),textAlign:i===0?"left":"right",
+                        fontSize:9,color:"#3D4A5C",letterSpacing:"0.06em",fontWeight:600,whiteSpace:"nowrap"}}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -1085,7 +1085,7 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
                     <tr key={h.id} style={{borderTop:"1px solid #1C2333"}}
                       onMouseEnter={e=>e.currentTarget.style.background="#141820"}
                       onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                      <td style={{padding:isMobile?"8px 10px":"9px 16px"}}>
+                      <td className="tbl-sym tbl-cell" style={{padding:"9px 16px"}}>
                         <div style={{display:"flex",alignItems:"center",gap:6}}>
                           <div style={{width:20,height:20,borderRadius:4,background:(SECTOR_C[h.sector]||"#888")+"22",
                             display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
@@ -1094,11 +1094,11 @@ const Dashboard = ({holdings,watchlist,quotes,lastUpdate}) => {
                           <span style={{fontSize:isMobile?11:12,fontWeight:700,color:"#F0F4FF",fontFamily:"monospace"}}>{h.sym}</span>
                         </div>
                       </td>
-                      <td style={{padding:isMobile?"8px 6px":"9px 8px",textAlign:"right",fontSize:isMobile?11:12,fontFamily:"monospace",color:"#F0F4FF"}}>${fmt(h.price)}</td>
-                      {!isMobile&&<td style={{padding:"9px 8px",textAlign:"right",fontSize:12,fontFamily:"monospace",color:"#8892A4"}}>${fmt(h.mktVal)}</td>}
-                      {!isMobile&&<td style={{padding:"9px 8px",textAlign:"right"}}><Pct v={h.dayPct}/></td>}
-                      <td style={{padding:isMobile?"8px 6px":"9px 8px",textAlign:"right"}}><Pct v={h.totalRet} size={isMobile?10:11}/></td>
-                      {!isMobile&&<td style={{padding:"9px 8px",textAlign:"right",fontSize:11,fontFamily:"monospace",color:"#8892A4"}}>{fmt(h.weight,1)}%</td>}
+                      <td className="tbl-num tbl-cell" style={{padding:"9px 8px",textAlign:"right",fontSize:12,fontFamily:"monospace",color:"#F0F4FF"}}>${fmt(h.price)}</td>
+                      <td className="col-value" style={{padding:"9px 8px",textAlign:"right",fontSize:12,fontFamily:"monospace",color:"#8892A4"}}>${fmt(h.mktVal)}</td>
+                      <td className="col-today" style={{padding:"9px 8px",textAlign:"right"}}><Pct v={h.dayPct}/></td>
+                      <td className="tbl-num" style={{padding:"9px 8px",textAlign:"right"}}><Pct v={h.totalRet}/></td>
+                      <td className="col-weight" style={{padding:"9px 8px",textAlign:"right",fontSize:11,fontFamily:"monospace",color:"#8892A4"}}>{fmt(h.weight,1)}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1572,7 +1572,7 @@ const NewsIntelligence = ({ holdings, watchlist }) => {
   const highImpactCount = SEED_NEWS.filter(n=>n.impact==="high").length;
 
   return (
-    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1100,margin:"0 auto"}}>
+    <div style={{padding:isMobile?"14px":"20px 24px",maxWidth:1100,margin:"0 auto",width:"100%"}}>
       {/* Header */}
       <div style={{marginBottom:16}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",flexWrap:"wrap",gap:10,marginBottom:12}}>
@@ -1775,40 +1775,132 @@ export default function App() {
   return (
     <div style={{background:"#07090D",minHeight:"100vh",fontFamily:"-apple-system,BlinkMacSystemFont,'Inter',sans-serif",color:"#F0F4FF",display:"flex",flexDirection:"column"}}>
       <style>{`
+        /* -- RESET & BASE -- */
         *{box-sizing:border-box;margin:0;padding:0}
-        html{scroll-behavior:smooth}
+        html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+        body{overflow-x:hidden;max-width:100vw;-webkit-font-smoothing:antialiased}
+        img{max-width:100%;height:auto;display:block}
+        table{border-collapse:collapse;width:100%}
+
+        /* -- SCROLLBARS -- */
         ::-webkit-scrollbar{width:4px;height:4px}
         ::-webkit-scrollbar-track{background:#07090D}
         ::-webkit-scrollbar-thumb{background:#1C2333;border-radius:2px}
-        input,select,textarea{outline:none;font-family:inherit}
+
+        /* -- FORMS -- */
+        input,select,textarea{outline:none;font-family:inherit;font-size:16px;-webkit-appearance:none;border-radius:0}
         input:focus,select:focus,textarea:focus{border-color:#3B82F6!important}
         input::placeholder,textarea::placeholder{color:#3D4A5C}
-        button{cursor:pointer;font-family:inherit}
-        button:focus-visible{outline:2px solid #3B82F6;outline-offset:2px}
-        a:focus-visible{outline:2px solid #3B82F6;outline-offset:2px}
-        table{border-collapse:collapse;width:100%}
-        img{max-width:100%;height:auto}
-        /* Responsive table wrapper */
-        .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-        /* Touch targets min 44px */
-        button,a,[role=button]{min-height:36px}
-        /* Prevent horizontal overflow */
-        body{overflow-x:hidden}
+        input[type=number]{-moz-appearance:textfield}
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+
+        /* -- BUTTONS & TOUCH TARGETS -- */
+        button{cursor:pointer;font-family:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+        button,a,[role=button],[role=tab]{min-height:44px;min-width:44px}
+        button:focus-visible,a:focus-visible{outline:2px solid #3B82F6;outline-offset:2px;border-radius:4px}
+
+        /* -- ANIMATIONS -- */
         @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-        /* Mobile bottom nav safe area */
+
+        /* -- SAFE AREAS (iPhone notch/home indicator) -- */
         @supports(padding-bottom:env(safe-area-inset-bottom)){
-          .bottom-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+          .bottom-nav{padding-bottom:calc(6px + env(safe-area-inset-bottom))!important}
+          .nav-top{padding-top:env(safe-area-inset-top)}
         }
-        /* Reduce motion */
+
+        /* -- ACCESSIBILITY -- */
         @media(prefers-reduced-motion:reduce){
           *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
         }
-        /* High contrast focus for accessibility */
         @media(forced-colors:active){
           button:focus,a:focus{outline:2px solid ButtonText}
+        }
+
+        /* ==============================================
+           MOBILE FIRST - max-width: 639px
+        ============================================== */
+        @media(max-width:639px){
+          /* Navigation */
+          .desktop-only{display:none!important}
+          .mobile-only{display:flex!important}
+          .mobile-bottom-nav{display:flex!important}
+
+          /* Table columns - hide non-essential */
+          .col-value,.col-today,.col-weight,.col-actions-extra{display:none!important}
+
+          /* Table cells - compact */
+          .tbl-cell{padding:8px 8px!important;font-size:11px!important}
+          .tbl-sym{padding:8px 10px!important}
+
+          /* Grids */
+          .kpi-grid{grid-template-columns:1fr 1fr!important}
+          .watchlist-grid{grid-template-columns:1fr 1fr!important}
+          .dash-main{grid-template-columns:1fr!important}
+          .two-col{grid-template-columns:1fr!important}
+          .three-col{grid-template-columns:1fr 1fr!important}
+          .four-col{grid-template-columns:1fr 1fr!important}
+
+          /* Typography */
+          .title-xl{font-size:18px!important}
+          .title-lg{font-size:15px!important}
+          .price-lg{font-size:16px!important}
+
+          /* Cards */
+          .card-pad{padding:12px!important}
+
+          /* Forms */
+          .form-input{font-size:16px!important}
+          .modal-inner{padding:14px!important}
+
+          /* Prevent table overflow */
+          .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100vw}
+          .table-scroll table{min-width:280px}
+
+          /* Market bar */
+          .market-bar-item{padding-right:12px!important;margin-right:12px!important}
+        }
+
+        /* ==============================================
+           TABLET - 640px to 1023px
+        ============================================== */
+        @media(min-width:640px) and (max-width:1023px){
+          .desktop-only{display:flex!important}
+          .mobile-only{display:none!important}
+          .mobile-bottom-nav{display:none!important}
+          .col-value{display:table-cell!important}
+          .col-today{display:table-cell!important}
+          .col-weight{display:table-cell!important}
+          .kpi-grid{grid-template-columns:repeat(3,1fr)!important}
+          .dash-main{grid-template-columns:1fr 260px!important}
+          .three-col{grid-template-columns:1fr 1fr!important}
+          .four-col{grid-template-columns:1fr 1fr!important}
+        }
+
+        /* ==============================================
+           DESKTOP - 1024px and above
+        ============================================== */
+        @media(min-width:1024px){
+          .desktop-only{display:flex!important}
+          .mobile-only{display:none!important}
+          .mobile-bottom-nav{display:none!important}
+          .col-value{display:table-cell!important}
+          .col-today{display:table-cell!important}
+          .col-weight{display:table-cell!important}
+          .kpi-grid{grid-template-columns:repeat(7,1fr)!important}
+          .dash-main{grid-template-columns:1fr 300px!important}
+          .three-col{grid-template-columns:repeat(3,1fr)!important}
+          .four-col{grid-template-columns:repeat(4,1fr)!important}
+        }
+
+        /* ==============================================
+           ULTRA-WIDE - 1920px and above
+        ============================================== */
+        @media(min-width:1920px){
+          .page-container{max-width:1600px!important;margin:0 auto!important}
         }
       `}</style>
 
@@ -1861,26 +1953,24 @@ export default function App() {
           )}
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
-          {!isMobile&&<button onClick={refreshQuotes} disabled={fetching} aria-label="Refresh market data"
+          <button onClick={refreshQuotes} disabled={fetching} aria-label="Refresh market data" className="desktop-only"
             style={{background:"#141820",border:"1px solid #1C2333",color:fetching?"#3D4A5C":"#8892A4",
               borderRadius:6,padding:"5px 10px",cursor:fetching?"not-allowed":"pointer",
               fontSize:11,display:"flex",alignItems:"center",gap:5}}>
             <span style={{display:"inline-block",animation:fetching?"spin 1s linear infinite":"none",fontSize:13}}>?</span>
             {fetching?"...":"Refresh"}
-          </button>}
-          {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:4}}>
+          </button>
+          <div className="desktop-only" style={{display:"flex",alignItems:"center",gap:4}}>
             <div style={{width:5,height:5,borderRadius:"50%",background:mktOpen?"#00C896":"#3D4A5C",
               boxShadow:mktOpen?"0 0 5px #00C896":"none",flexShrink:0}}/>
             <span style={{fontSize:10,color:mktOpen?"#00C896":"#3D4A5C",letterSpacing:"0.05em"}}>
               {mktOpen?"OPEN":"CLOSED"}
             </span>
-          </div>}
-          {!isMobile&&<span style={{fontSize:10,color:"#3D4A5C",fontFamily:"monospace"}}>{time.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"})} ET</span>}
-          {isMobile&&(
-            <button onClick={()=>setMobileMenuOpen(o=>!o)} aria-label="Open navigation menu" aria-expanded={mobileMenuOpen}
+          </div>
+          <span className="desktop-only" style={{fontSize:10,color:"#3D4A5C",fontFamily:"monospace"}}>{time.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"})} ET</span>
+          <button className="mobile-only" onClick={()=>setMobileMenuOpen(o=>!o)} aria-label="Open navigation menu" aria-expanded={mobileMenuOpen}
               style={{background:"#141820",border:"1px solid #1C2333",color:"#8892A4",
-                borderRadius:6,padding:"5px 8px",cursor:"pointer",fontSize:16}}>?</button>
-          )}
+                borderRadius:6,padding:"5px 8px",cursor:"pointer",fontSize:16}}>Menu</button>
         </div>
       </div>
 
@@ -1924,7 +2014,7 @@ export default function App() {
 
       {/* Bottom nav for mobile */}
       {isMobile&&(
-        <div className="bottom-nav" style={{display:"flex",borderTop:"1px solid #1C2333",background:"#07090D",flexShrink:0,
+        <nav className="bottom-nav mobile-bottom-nav" aria-label="Mobile navigation" style={{display:"none",borderTop:"1px solid #1C2333",background:"#07090D",flexShrink:0,
           position:"sticky",bottom:0,zIndex:50}}>
           {nav.map(n=>{
             if(n.id==="tools") return (
@@ -1946,7 +2036,7 @@ export default function App() {
               </button>
             );
           })}
-        </div>
+        </nav>
       )}
 
       <div style={{borderTop:"1px solid #1C2333",padding:"8px 24px",display:"flex",justifyContent:"space-between",
