@@ -1797,7 +1797,6 @@ export default function App() {
 
         /* -- BUTTONS & TOUCH TARGETS -- */
         button{cursor:pointer;font-family:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-        button,a,[role=button],[role=tab]{min-height:44px;min-width:44px}
         button:focus-visible,a:focus-visible{outline:2px solid #3B82F6;outline-offset:2px;border-radius:4px}
 
         /* -- ANIMATIONS -- */
@@ -1835,6 +1834,7 @@ export default function App() {
           /* Table cells - compact */
           .tbl-cell{padding:8px 8px!important;font-size:11px!important}
           .tbl-sym{padding:8px 10px!important}
+          .tbl-num{padding:8px 6px!important;font-size:11px!important}
 
           /* Grids */
           .kpi-grid{grid-template-columns:1fr 1fr!important}
